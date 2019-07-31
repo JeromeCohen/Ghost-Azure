@@ -1,0 +1,288 @@
+{{!< default}}
+
+{{!-- The tag above means: insert everything in this file
+into the {body} of the default.hbs template --}}
+
+<header class="site-header outer">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script type='text/javascript' src='http://contentstorage.onenote.office.net/onenoteltir/immersivereadersdk/immersive-reader-0.0.1.js'></script>
+    <script>
+
+      async function handleLaunchImmersiveReader() {
+        let contents = $('.ir');
+        let buttonPos = $('.ir-button').offset().top;
+        let dist = Math.abs(contents.offset().top - buttonPos);
+        let contentIR;
+
+        Array.prototype.forEach.call(contents, content => {
+          let newDist = Math.abs($(content).offset().top - buttonPos);
+          if (newDist <= dist) {
+            dist = newDist;
+            contentIR = $(content);
+          }
+        });
+
+        const data = {
+            title: contentIR.children('.post-card-title').text().trim(),
+            chunks: [{
+                content: contentIR.children('.post-card-excerpt').text().trim(),
+                lang: 'en'
+            }]
+        };
+
+        const token = await getImmersiveReaderTokenAsync();
+
+        ImmersiveReader.launchAsync(token, data);
+      }
+
+      function getImmersiveReaderTokenAsync() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: 'https://irauthjc.azurewebsites.net/api/getirtoken\?code\=XgIilj9EDCPR83HirgyA1/35kYe3uHCEwMr86yhUbry5E1Yl/omFFQ\=\=',
+                type: 'GET',
+                success: token => {
+                    resolve(token);
+                },
+                error: err => {
+                    console.log('Error in getting token!', err);
+                    reject(err);
+                }
+            })
+        });
+      }
+
+      function documentSetup() {
+        //handle student links
+        link = document.getElementById("student-text-link").href;
+        document.getElementById("student-link").href = link;
+
+        //table of contents
+        headers = $('.post-content').find('h2');
+        console.log(headers);
+        headers.each(index => {
+          let headerTOC = $(headers.get(index));
+          let headerText= headerTOC.text().trim();
+
+          let id = 'toc' + index;
+          headerTOC.attr('id', id);
+          let link = $('<a></a>').text(headerText);
+          if (headerText == 'Students' || headerText == 'Teachers') {
+            link.css({'font-size':'105%', 'font-weight':'bold'})
+            switchSection = headerText;
+          }
+          if (switchSection == 'Students') {
+            let lineBreak = $('<br>');
+            link.attr('href', '#' + id);
+            $('#student-contents').append(link);
+            $('#student-contents').append(lineBreak);
+          } else {
+            let lineBreak = $('<br>');
+            link.attr('href', '#' + id);
+            $('#teacher-contents').append(link);
+            $('#teacher-contents').append(lineBreak);
+          }
+        })
+      }
+
+    </script>
+    <style>
+      article.post-card {
+        margin-left: 0px;
+        min-height: auto;
+      }
+      .table-contents {
+        border-radius: 4px;
+        padding: 1em;
+        margin: 1em 0em;
+        background: #ffffff;
+        border: 1px solid #cccccc;
+        font-size: 20px;
+        float: left;
+      }
+      @media (min-width: 1150px) {
+        .sidebar {
+          position: fixed;
+        }
+      }
+
+      textarea {
+        border-radius: 4px;
+        padding: 1em;
+        margin: 1em 0em;
+        background: #ffffff;
+        border: 1px solid #cccccc;
+      }
+      .nav-button {
+        border-radius: 4px;
+        padding: 1em;
+        margin: 1em 0em;
+        background: #ffffff;
+        border: 1px solid #cccccc;
+        font-size: 20px;
+      }
+      .nav-button a {
+        color: #444444;
+      }
+      .nav-button:hover,
+      .nav-button:hover:active,
+      .nav-button:focus,
+      .nav-button:focus:active {
+          border-color: #1eccbc;
+          color: #000000;
+          outline: none;
+      }
+      .ir-button {
+              border-radius: 4px;
+              overflow: hidden;
+              top: 20;
+
+      }
+      .ir-button:hover,
+      .ir-button:hover:active,
+      .ir-button:focus,
+      .ir-button:focus:active {
+          border-color: #1eccbc;
+          color: #000000;
+          outline: none;
+      }
+      .ir-button::-moz-focus-inner {
+          border: 0;
+      }
+      .ir-button-icon {
+          float: left;
+          height: 21px;
+          margin-top: 11px;
+          width: 21px;
+      }
+      .ir-button-text {
+          display: inline-block;
+          line-height: 38px;
+          /* margin-left: 8px; */
+      }
+
+      .ir-button-small {
+          background-color: #ffffff;
+          border: 1px solid transparent;
+          cursor: pointer;
+          padding: 4px 4px 2px 4px;
+          position: absolute;
+          right: 5px;
+          top: 5px;
+      }
+      .ir-button-small > .ir-button-icon {
+          display: block;
+          height: 20px;
+          width: 20px;
+          margin: 0;
+      }
+
+      .ir-button-wide {
+          background: #ffffff;
+          border: 1px solid #cccccc;
+          color: #444444;
+          cursor: pointer;
+          display: block;
+          font-family: Sans-Serif;
+          font-size: 14px;
+          /* margin-left: 100px; */
+          padding: 0 8px;
+          width: 120px;
+          -webkit-tap-highlight-color: transparent;
+      }
+      @media (min-width: 768px) {
+        .ir-button-wide {
+          position: relative;
+        }
+      }
+
+    </style>
+</header>
+
+{{!-- Everything inside the #post tags pulls data from the post --}}
+{{#post}}
+
+<main id="site-main" class="site-main outer">
+  <article class="post-full {{post_class}} {{#unless feature_image}}no-image{{/unless}}">
+          <header> {{! Bunk way of adding padding}}
+            <br>
+          </header>
+          {{#if feature_image}}
+          <figure class="post-full-image">
+              {{!-- This is a responsive image, it loads different sizes depending on device
+              https://medium.freecodecamp.org/a-guide-to-responsive-images-with-ready-to-use-templates-c400bd65c433 --}}
+              <img
+                  srcset="{{img_url feature_image size="s"}} 300w,
+                          {{img_url feature_image size="m"}} 600w,
+                          {{img_url feature_image size="l"}} 1000w,
+                          {{img_url feature_image size="xl"}} 2000w"
+                  sizes="(max-width: 800px) 400px,
+                          (max-width: 1170px) 700px,
+                          1400px"
+                  src="{{img_url feature_image size="xl"}}"
+                  alt="{{title}}"
+              />
+          </figure>
+          {{/if}}
+
+          <div class='row'>
+            <div class='col-md-1'>
+              <div class='sidebar'>
+                <button class='ir-button ir-button-wide' role='button' title='Immersive Reader' aria-label='Immersive Reader' onclick='handleLaunchImmersiveReader()'>
+                  <img>{{> "icons/ir-icon"}}</img>
+                  <span class='ir-button-text' aria-hidden='true'>Immersive Reader</span>
+                </button>
+                <div class='nav-button'>
+                  <a href='#toc'>Contents</a>
+                </div>
+                <div class='nav-button'>
+                  <a id='student-link' href='#ir-title-s'>Students</a>
+                </div>
+                <div class='nav-button'>
+                  <a href='#ir-title-s'>Parents</a>
+                </div>
+              </div>
+            </div>
+
+            <section class="col-md-10 offset-1 post-full-content">
+              <div class="post-content">
+                <h1 id='title' style='text-align: center'> {{title}} </h1>
+                <div class='row table-contents' id='toc'>
+                    <h3>Table of Contents</h3>
+                    <div style='padding-left: 0px;' id='teacher-contents' class='col-sm-6'></div>
+                    <div style='padding-left: 0px;' id='student-contents' class='col-sm-6'></div>
+                </div>
+                {{content}}
+              </div>
+            </section>
+          </div>
+
+          {{!-- Email subscribe form at the bottom of the page --}}
+          {{#if @labs.subscribers}}
+          <section class="subscribe-form">
+              <h3 class="subscribe-form-title">Subscribe to {{@site.title}}</h3>
+              <p>Get the latest posts delivered right to your inbox</p>
+              {{subscribe_form placeholder="youremail@example.com"}}
+          </section>
+          {{/if}}
+
+            <footer class="post-full-footer">
+            </footer>
+          </article>
+</main>
+
+{{/post}}
+
+{{!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs --}}
+{{#contentFor "scripts"}}
+<script>
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+
+    documentSetup();
+
+});
+</script>
+{{/contentFor}}
